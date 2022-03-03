@@ -20,19 +20,31 @@ namespace Singleton
     class CustomerManager
     {
         private static CustomerManager _customerManager; // create static field for object
+        static object _lockObject = new object();
 
         private CustomerManager() // initialize a private constructor
         {
         }
 
-        public static CustomerManager CreateAsSingleton()
+        public static CustomerManager
+            CreateAsSingleton() 
         {
-            return _customerManager ?? (_customerManager = new CustomerManager());      // if customer manager instance didn't creating yet, create a instance
+            lock (_lockObject)          // Thread safe singleton pattern
+            {
+                if (_customerManager == null)           // if customer manager instance didn't creating yet, create a instance
+                {
+                    _customerManager = new CustomerManager();           
+                }
+            }
+
+            return _customerManager;
         }
 
-        public void Save()       // if we use static we can not reach the save operation via instance of customer manager!
+
+        public void Save() // if we use static we can not reach the save operation via instance of customer manager!
         {
             Console.WriteLine("Saved!");
         }
+
     }
 }
